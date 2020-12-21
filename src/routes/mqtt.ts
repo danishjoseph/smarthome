@@ -1,0 +1,50 @@
+import mqtt from 'mqtt'
+import { config } from '../config/config'
+import * as deviceLogic from '../logic/device'
+import * as smartHome from '../routes/smarthome'
+
+
+export let mqttClient:any
+
+export function connect(){
+
+    // Connect mqtt with credentials (in case of needed, otherwise we can omit 2nd param)
+    mqttClient = mqtt.connect(`mqtt://${config.mqtt_host}`);
+
+    // Connection callback
+    mqttClient.on('connect', () => {
+       console.info(`mqtt client connected`);
+    });
+
+    // mqtt subscriptions
+    mqttClient.subscribe("device/+/state");
+
+    mqttClient.on('message', async (topic: String, payload: any) => {
+        let splitTopic = topic.split('/')
+        switch (splitTopic[2]) {
+            case "state":
+                payload = JSON.parse(String(payload));
+                const stateUpdate = await deviceLogic.updateDeviceState(splitTopic[1],payload)
+                if(!stateUpdate)
+                    break;
+                smartHome.reportState(config.userId,splitTopic[1],{ online : payload, on : payload})
+                break;
+            
+        
+            default:
+                break;
+        }
+       
+    })
+
+    mqttClient.on('close', () => {
+      console.error(`mqtt client disconnected`);
+    });
+  }
+
+
+  // Sends a mqtt message to topic: mytopic
+  export async function sendMessage(topic:String,message:String) {
+    await mqttClient.publish(topic, message);
+    return true
+  }
