@@ -69,7 +69,7 @@ export const connect = () => {
                 lgtv.request('ssap://system/turnOff', { message: "false" });
                 mqttClient.publish('device/lgtv/state', 'false');
                 break;
-            case 'currentState':
+            case 'currentstate':
                 mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
             case 'toast':
