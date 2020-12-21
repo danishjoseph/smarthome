@@ -1,18 +1,19 @@
 import express, { Request, Response } from 'express'
-import { Device, IDevice } from '../models/device'
+import * as fileData from '../logic/file'
 
 const router = express.Router()
 
 router.get('/get', async (req: Request, res: Response) => {
-  const todo = await Device.find({})
-  res.status(200).send(todo)
+  const devices = await fileData.getAllDevices()
+  res.status(200).send(devices)
 })
 
 router.post('/add', async (req: Request, res: Response) => {
-  const deviceData: IDevice = req.body;
-  const createdDevice = new Device(deviceData);
-  createdDevice.save()
-  return res.status(201).send(createdDevice)
+  const deviceData = req.body;
+  const addDevice = await fileData.addDevice(deviceData)
+  if(!addDevice)
+    return res.status(500).send("Error in adding device data")
+  return res.status(201).send("device creation successfull")
 })
 
 export { router as deviceRouter }

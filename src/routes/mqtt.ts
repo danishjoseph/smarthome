@@ -1,6 +1,6 @@
 import mqtt from 'mqtt'
-import { config } from '../config/config'
-import * as deviceLogic from '../logic/device'
+import { config } from '../config'
+import * as deviceLogic from '../logic/file'
 import * as smartHome from '../routes/smarthome'
 
 
@@ -10,7 +10,7 @@ export function connect(){
 
     // Connect mqtt with credentials (in case of needed, otherwise we can omit 2nd param)
     mqttClient = mqtt.connect(`mqtt://${config.mqtt_host}`);
-
+    console.log('mqttClient: mha', mqttClient.options.clientId)
     // Connection callback
     mqttClient.on('connect', () => {
        console.info(`mqtt client connected`);

@@ -1,11 +1,10 @@
 import Lgtv from 'lgtv2'
 import * as wol from 'wol'
 import { mqttClient } from './mqtt'
-import { config } from '../config/config'
+import { config } from '../config'
 let lgtv:any
 
 export const connect = () => {
-
     let tvConnected:boolean
     let volume:number
     let lastError:any
@@ -25,8 +24,8 @@ export const connect = () => {
     lgtv.on('connect', () => {
         lastError = null;
         tvConnected = true;
+        mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
         console.log('tv connected');
-
         lgtv.subscribe('ssap://audio/getVolume', (err:any, res:any) => {
             if (res.changed.indexOf('volume') !== -1) {
                 volume = res.volume
@@ -37,12 +36,14 @@ export const connect = () => {
     
     lgtv.on('close', () => {
         tvConnected = false;
+        mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
         console.info('tv disconnected');
     });
     
     lgtv.on('error', (err:any) => {
         const str = String(err);
         if (str !== lastError) {
+            mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
             console.error('tv', str);
         }
         lastError = str;
@@ -61,23 +62,21 @@ export const connect = () => {
         switch (parts[2]) {
             case 'true':
                 wol.wake('30:a9:de:7d:72:4c', () => {
-                    mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false')
+                    mqttClient.publish('device/lgtv/state','true')
                 })
                 break;
             case 'false':
                 lgtv.request('ssap://system/turnOff', { message: "false" });
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
+                mqttClient.publish('device/lgtv/state', 'false');
                 break;
             case 'currentState':
                 mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
             case 'toast':
                 lgtv.request('ssap://system.notifications/createToast', { message: String(payload) });
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
             case 'volume':
                 lgtv.request('ssap://audio/setVolume', { volume: parseInt(payload) || 15 } );
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
             case 'mute':
                 if (payload === 'true') {
@@ -87,15 +86,12 @@ export const connect = () => {
                     payload = false;
                 }
                 lgtv.request('ssap://audio/setMute', { mute: Boolean(payload) });
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
             case 'launch':
                 lgtv.request('ssap://system.launcher/launch', { id: String(payload) });
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
             case 'youtube':
                 lgtv.request('ssap://system.launcher/launch', { id: 'youtube.leanback.v4', contentId: String(payload) });
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
             case 'button':
                 /*
@@ -107,7 +103,6 @@ export const connect = () => {
                  *    CHANNELUP, CHANNELDOWN
                  */
                 sendPointerEvent('button', { name: (String(payload)).toUpperCase() });
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
                 break;
 
             default:
