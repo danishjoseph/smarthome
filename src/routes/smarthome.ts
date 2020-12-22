@@ -122,8 +122,8 @@ app.onExecute(async (body, headers) => {
                 default:
                     break;
             }
-            const boolValue = execution[0].params.on == "true"
-            states = { on: boolValue, online: boolValue }
+            const boolValue = execution[0].params.on
+            states = { on: boolValue, online: true }
             successCommand.ids.push(device.id)
             successCommand.states = states
         } catch (e) {
