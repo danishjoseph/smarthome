@@ -108,7 +108,8 @@ app.onExecute(async (body, headers) => {
             let states: any
             switch (execution[0].command) {
                 case "action.devices.commands.OnOff":
-                    await sendMessage(`device/${device.id}/${execution[0].params.on}`, "execute");  //change topic to OnOff
+                    const message = execution[0].params.on == true ? "1" : "0"
+                    await sendMessage(`device/${device.id}/OnOff`, message);  //change topic to OnOff
                     break;
                 case "action.devices.commands.appSelect":
                     await sendMessage("device/lgtv/launch", String(execution[0].params.newApplication));

@@ -23,11 +23,11 @@ export function connect(){
         let splitTopic = topic.split('/')
         switch (splitTopic[2]) {
             case "state":
-                payload = JSON.parse(String(payload));
-                const stateUpdate = await deviceLogic.updateDeviceState(splitTopic[1],payload)
+                const updateMessage = String(payload) ==  "1" ? true : false
+                const stateUpdate = await deviceLogic.updateDeviceState(splitTopic[1],updateMessage)
                 if(!stateUpdate)
                     break;
-                smartHome.reportState(config.userId,splitTopic[1],{ online : payload, on : payload})
+                smartHome.reportState(config.userId,splitTopic[1],{ online : true, on : updateMessage})
                 break;
             
         

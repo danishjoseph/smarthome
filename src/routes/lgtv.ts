@@ -24,7 +24,7 @@ export const connect = () => {
     lgtv.on('connect', () => {
         lastError = null;
         tvConnected = true;
-        mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
+        mqttClient.publish('device/lgtv/state', tvConnected ? '1' : '0');
         console.log('tv connected');
         lgtv.subscribe('ssap://audio/getVolume', (err:any, res:any) => {
             if (res.changed.indexOf('volume') !== -1) {
@@ -36,14 +36,14 @@ export const connect = () => {
     
     lgtv.on('close', () => {
         tvConnected = false;
-        mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
+        mqttClient.publish('device/lgtv/state', tvConnected ? '1' : '0');
         console.info('tv disconnected');
     });
     
     lgtv.on('error', (err:any) => {
         const str = String(err);
         if (str !== lastError) {
-            mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
+            mqttClient.publish('device/lgtv/state', tvConnected ? '1' : '0');
             console.error('tv', str);
         }
         lastError = str;
@@ -60,17 +60,20 @@ export const connect = () => {
         }
         const parts = topic.split('/');
         switch (parts[2]) {
-            case 'true':
-                wol.wake('30:a9:de:7d:72:4c', () => {
-                    mqttClient.publish('device/lgtv/state','true')
-                })
-                break;
-            case 'false':
-                lgtv.request('ssap://system/turnOff', { message: "false" });
-                mqttClient.publish('device/lgtv/state', 'false');
-                break;
+            case 'OnOff':
+                if(payload == 1){
+                    wol.wake('30:a9:de:7d:72:4c', () => {
+                        mqttClient.publish('device/lgtv/state','true')
+                    })
+                    break;
+                }
+                else {
+                    lgtv.request('ssap://system/turnOff', { message: "false" });
+                    mqttClient.publish('device/lgtv/state', '0');
+                    break;
+                }
             case 'currentstate':
-                mqttClient.publish('device/lgtv/state', tvConnected ? 'true' : 'false');
+                mqttClient.publish('device/lgtv/state', tvConnected ? '1' : '0');
                 break;
             case 'toast':
                 lgtv.request('ssap://system.notifications/createToast', { message: String(payload) });
