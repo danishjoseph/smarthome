@@ -104,4 +104,4 @@ dist
 .tern-port
 
 #config files
-src/config
+src/smart-home-key.json

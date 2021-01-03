@@ -2,46 +2,49 @@ import express from 'express';
 import https from 'https';
 import fs from 'fs'
 import cors from 'cors'
-import mongoose from 'mongoose'
+import ip from 'ip'
+import * as ngrok from 'ngrok'
 import { json, urlencoded } from 'body-parser';
-import { deviceRouter } from './routes/device'
 import { authRouter } from './routes/auth'
 import { smartHomeRoute } from './routes/smarthome'
 import * as mqtt from './routes/mqtt'
-import * as lgtv from './routes/lgtv'   // comment if not using lgtv
-
 
 const app = express()
 const c = cors()
 app.use(json(), urlencoded({ extended: true }))
 app.set('trust proxy', 1)
 app.use(c)
-app.use(deviceRouter)
 app.use(authRouter)
 app.use(smartHomeRoute)
 
-  
-  mongoose.connect('mongodb://localhost:27017/test-todo', {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true
-})
-
-
 mqtt.connect()
-lgtv.connect()
 
-// use your own domain certificates
-let certificates = {
-  key: fs.readFileSync("src/config/privkey.pem"),
-  cert: fs.readFileSync("src/config/cert.pem"),
-  ca: fs.readFileSync("src/config/chain.pem")
-}
+app.listen(3000, async () => {
+  try {
+    const url = await ngrok.connect(3000)
+    console.log('')
+    console.log('COPY & PASTE NGROK URL BELOW')
+    console.log(url)
+    console.log('')
+    console.log('=====')
+    console.log('Visit the Actions on Google console at http://console.actions.google.com')
+    console.log('Replace the webhook URL in the Actions section with:')
+    console.log('    ' + url + '/smarthome')
 
-app.listen(3001,() => {
-  console.info('server is listening on port [http] 3001')
+    console.log('')
+    console.log('In the console, set the Authorization URL to:')
+    console.log('    ' + url + '/fakeauth')
+
+    console.log('')
+    console.log('Then set the Token URL to:')
+    console.log('    ' + url + '/faketoken')
+    console.log('')
+
+    console.log('Finally press the \'TEST DRAFT\' button')
+  } catch (err) {
+    console.error('Ngrok was unable to start')
+    console.error(err)
+    process.exit()
+  }
+
 })
-
-https.createServer(certificates, app).listen(3000, () => {
-    console.info('server is listening on port [https] 3000')
-  })

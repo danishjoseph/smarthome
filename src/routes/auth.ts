@@ -20,6 +20,7 @@ const router = express.Router()
     // Here, you should validate the user account.
     // In this sample, we do not do that.
     const responseurl = decodeURIComponent(req.body.responseurl)
+    console.log('responseurl:', responseurl)
     return res.redirect(responseurl)
   })
   

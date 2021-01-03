@@ -1,17 +1,15 @@
 // Smart home imports
 import { smarthome, SmartHomeV1ExecuteResponseCommands, Headers } from 'actions-on-google'
 import express from 'express'
-import * as devicedb from '../logic/device'
+import * as devicedb from '../logic/file'
 import { sendMessage, mqttClient } from './mqtt'
-import {config} from '../config/config'
-
-
+import * as smartHomeKey from '../smart-home-key.json';
 const router = express.Router()
 
-const userId = config.userId
-let jwt
+const userId = "1234"
+let jwt:any
 try {
-    jwt = require('../config/smart-home-key.json')
+    jwt = smartHomeKey
 } catch (e) {
     console.warn('Service account key is not found')
     console.warn('Report state and Request sync will be unavailable')
@@ -29,6 +27,7 @@ async function asyncForEach(array: any[], callback: Function) {
     }
 }
 
+export const fulfillment = app;
 
 export async function reportState(agentUserId: string, deviceId: string, states: any) {
     console.log(`Reporting state payload for ${deviceId}`, states)
@@ -109,7 +108,8 @@ app.onExecute(async (body, headers) => {
             let states: any
             switch (execution[0].command) {
                 case "action.devices.commands.OnOff":
-                    await sendMessage(`device/${device.id}/${execution[0].params.on}`, "execute");
+                    const message = execution[0].params.on == true ? "1" : "0"
+                    await sendMessage(`device/${device.id}/OnOff`, message);  //change topic to OnOff
                     break;
                 case "action.devices.commands.appSelect":
                     await sendMessage("device/lgtv/launch", String(execution[0].params.newApplication));
@@ -123,12 +123,8 @@ app.onExecute(async (body, headers) => {
                 default:
                     break;
             }
-            await mqttClient.on('message', (topic: String, message: Buffer) => {
-                if (topic == `device/${device.id}/state`) {
-                    const boolValue = message.toString() == "true"
-                    states = { on: boolValue, online: boolValue }
-                }
-            })
+            const boolValue = execution[0].params.on
+            states = { on: boolValue, online: true }
             successCommand.ids.push(device.id)
             successCommand.states = states
         } catch (e) {

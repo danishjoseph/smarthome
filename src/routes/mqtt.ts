@@ -1,6 +1,5 @@
 import mqtt from 'mqtt'
-import { config } from '../config/config'
-import * as deviceLogic from '../logic/device'
+import * as deviceLogic from '../logic/file'
 import * as smartHome from '../routes/smarthome'
 
 
@@ -9,8 +8,8 @@ export let mqttClient:any
 export function connect(){
 
     // Connect mqtt with credentials (in case of needed, otherwise we can omit 2nd param)
-    mqttClient = mqtt.connect(`mqtt://${config.mqtt_host}`);
-
+    mqttClient = mqtt.connect(`mqtt://localhost`);
+    console.log('mqttClient: mha', mqttClient.options.clientId)
     // Connection callback
     mqttClient.on('connect', () => {
        console.info(`mqtt client connected`);
@@ -23,11 +22,11 @@ export function connect(){
         let splitTopic = topic.split('/')
         switch (splitTopic[2]) {
             case "state":
-                payload = JSON.parse(String(payload));
-                const stateUpdate = await deviceLogic.updateDeviceState(splitTopic[1],payload)
+                const updateMessage = String(payload) ==  "1" ? true : false
+                const stateUpdate = await deviceLogic.updateDeviceState(splitTopic[1],updateMessage)
                 if(!stateUpdate)
                     break;
-                smartHome.reportState(config.userId,splitTopic[1],{ online : payload, on : payload})
+                smartHome.reportState("1234",splitTopic[1],{ online : true, on : updateMessage})
                 break;
             
         
