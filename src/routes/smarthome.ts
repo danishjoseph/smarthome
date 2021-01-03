@@ -95,7 +95,7 @@ app.onQuery(async (body, headers) => {
     }
 })
 
-app.onExecute(async (body, headers) => {
+app.onExecute(async (body:any, headers) => {
     const commands: SmartHomeV1ExecuteResponseCommands[] = []
     const successCommand: SmartHomeV1ExecuteResponseCommands = {
         ids: [],
