@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc && node dist/index.js",
+    "add-device" : "npx ts-node-dev src/deviceConfig.ts",
     "dev": "ts-node-dev src/index.ts"
   },
   "keywords": [],
@@ -12,11 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.7",
-    "@types/mongoose": "^5.7.36",
     "@types/cors": "^2.8.8",
-    "@types/lgtv2": "^1.4.1",
     "@types/morgan": "^1.9.2",
-    "@types/wol": "^1.0.0",
     "ts-node-dev": "^1.0.0-pre.57",
     "typescript": "^3.9.7"
   },

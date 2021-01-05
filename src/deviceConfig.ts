@@ -84,7 +84,7 @@ const question2 = ()  => {
 const question3 = () => {
     return new Promise((resolve, reject) => {
         rl.question('Assign room for device (default: Living Room)\n', (answer) => {
-            resolve(answer)
+            answer == "" ? resolve("Living Room") :  resolve(answer)
         })
     })
 }
@@ -94,6 +94,7 @@ const main = async () => {
     const deviceType = await question1()
     const deviceName = await question2()
     const roomHint = await question3()
+    console.log('roomHint:', roomHint)
     if (deviceType.trim() == "switch")
         deviceData = switchJson
     else if (deviceType.trim() == "fan")
@@ -103,6 +104,7 @@ const main = async () => {
     deviceData.id = Math.random().toString(36).substring(7);
     deviceData.name.name = deviceName
     deviceData.roomHint = roomHint
+    console.log('roomHint:', roomHint)
     await file.addDevice(deviceData)
     await homegraph.requestSync("1234")
     rl.close()
