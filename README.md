@@ -4,12 +4,13 @@ Fully functioning Smart Home API's that works with Actions on Google. This can b
 ## Setup Instructions
 
 ### Steps for installing mosquitto broker. 
-- For windows users download the exe file from this [link](https://mosquitto.org/download/) finish the installation procedure. pretty much straight forward. 
+- For windows users download the exe file from this [link](https://mosquitto.org/download/), finish the installation procedure. pretty much straight forward. 
 - For Linux users you could install using the following commands
-    - sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
-    - sudo apt-get update
-    - sudo apt-get install mosquitto mosquitto-clients
-    
+```sh
+sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
+sudo apt-get update
+sudo apt-get install mosquitto mosquitto-clients
+```
 ### Steps for installing google actions webhook.
 
 #### Create and set up project in Actions Console.
@@ -35,17 +36,17 @@ Fully functioning Smart Home API's that works with Actions on Google. This can b
 npm install 
 npm run start
 ```
-copy the links in command line for updating in actions console.
+copy the links from command line for updating in actions console.
 
 #### Setup ESP Devices
 1. Open up a new terminal and run the following command:
 ```sh
 npm run add-device
 ```
-2. Enter the deviceId(s) provided while flashing the code to the ESP. ESP flashing code link can be found [ here]()
+2. Enter the deviceId(s) provided while flashing the code to the ESP. ESP flashing code link can be found [here](https://github.com/danishjoseph/smarthome-ESP.git).
 
 #### Start testing
-1. Navigate back to the Actions on Google Console.
+1. Navigate back to the [Actions on Google Console](https://console.actions.google.com/).
 2. From the top menu under Develop, click on Actions (left nav). Click on Add your first action and choose your app's language(s).
     - Enter the URL for fulfillment, and click Save.
 3. On the left navigation menu under ADVANCED OPTIONS, click on Account Linking.
